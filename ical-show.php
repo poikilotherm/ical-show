@@ -37,6 +37,9 @@ function icalshow_shortcodes_init()
         // override default attributes with user attributes
         $ical_atts = shortcode_atts([
                                       'url' => 'invalid',
+                                      'showpastevents' => false,
+                                      'showmaxfuture' => '+2 weeks', # disable by setting to false/0
+                                      'limit' => false,
                                       'dateformat' => 'd.m. H:i',
                                       'dateseparator' => ' - ',
                                       'collapsetime' => true,
@@ -62,11 +65,41 @@ function icalshow_shortcodes_init()
         // parse read data
         $vcalendar = VObject\Reader::read($data);
 
-        // TODO: FILTER!!!
+        // filter events...
+        // save valid values to new array
+        $events = array();
+
+        foreach($vcalendar->VEVENT as $event) {
+          $start = $event->DTSTART->getDateTime();
+          $end = $event->DTEND->getDateTime();
+          $now = new DateTime('NOW');
+          $add = false;
+
+          // filter past events
+          if ($ical_atts['showpastevents'] == true || $end > $now)
+            $add = true;
+
+          // filter future events by max future timespan
+          if ($ical_atts['showmaxfuture'] != false) {
+            $future = $now->modify($ical_atts['showmaxfuture']);
+            if ($future === false)
+              return "<div>Could not parse future time \"".$ical_atts['showmaxfuture']."\". Failing...</div>";
+            if ($start < $future)
+              $add = $add && true; // respect filtering past events!
+            else
+              $add = false;
+          }
+
+          // filter limit
+          if ($ical_atts['limit'] !== false && (int)$ical_atts['limit'] > 0 && count($events) >= (int)$ical_atts['limit'])
+            break; //simply abort
+          if ($add)
+            $events[] = $event;
+        }
 
         // start output
         $o =  "<div class=\"icalshow\"><div class=\"icalshow-body\">";
-        foreach ($vcalendar->VEVENT as $event) {
+        foreach ($events as $event) {
           $o .= "<div class=\"icalshow-row\">";
           // date and time
           $start = $event->DTSTART->getDateTime();
