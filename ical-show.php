@@ -31,10 +31,20 @@ function icalshow_shortcodes_init()
 
     function icalshow_shortcode($atts = [], $content = null)
     {
-        // do something to $content
+        // normalize attribute keys, lowercase
+        $atts = array_change_key_case((array)$atts, CASE_LOWER);
+        // override default attributes with user attributes
+        $wporg_atts = shortcode_atts([
+                                      'url' => '',
+                                     ], $atts);
+        //ignore any enclosed content, this is only non-enclosing
+        $content = null;
 
-        // always return
-        return $content;
+        // start output
+        $o = '<div>test</div>';
+
+        // return output
+        return $o;
     }
     add_shortcode('icalshow', 'icalshow_shortcode');
 }
