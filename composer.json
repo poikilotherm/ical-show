@@ -1,0 +1,13 @@
+{
+    "name": "obertuch/ical-test",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Oliver Bertuch",
+            "email": "o.bertuch@fz-juelich.de"
+        }
+    ],
+    "require": {
+        "sabre/vobject": "^4.0"
+    }
+}
