@@ -47,6 +47,7 @@ function icalshow_shortcodes_init()
                                       'collapseseparator' => '-',
                                       'linksummary' => true,
                                       'linktarget' => '_blank',
+                                      'noresults' => '(Nothing to show.)'
                                      ], $atts);
         //ignore any enclosed content, this is only non-enclosing
         $content = null;
@@ -98,6 +99,10 @@ function icalshow_shortcodes_init()
         }
 
         // TODO: SORTING!
+
+        // no events to show = return message
+        if (count($events) == 0)
+          return "<div class=\"icalshow\">".$ical_atts['noresults']."</div>";
 
         // start output
         $o =  "<div class=\"icalshow\"><div class=\"icalshow-table\">";
