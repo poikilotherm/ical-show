@@ -1,0 +1,6 @@
+div.icalshow-table { display: table; }
+div.icalshow-row { display: table-row; }
+div.icalshow-cell {
+  display: table-cell;
+  padding: 0 2rem 0 0;
+}

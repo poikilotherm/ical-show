@@ -98,7 +98,7 @@ function icalshow_shortcodes_init()
         }
 
         // start output
-        $o =  "<div class=\"icalshow\"><div class=\"icalshow-body\">";
+        $o =  "<div class=\"icalshow\"><div class=\"icalshow-table\">";
         foreach ($events as $event) {
           $o .= "<div class=\"icalshow-row\">";
           // date and time
@@ -129,5 +129,12 @@ function icalshow_shortcodes_init()
     add_shortcode('icalshow', 'icalshow_shortcode');
 }
 add_action('init', 'icalshow_shortcodes_init');
+
+// Register style sheet.
+add_action( 'wp_enqueue_scripts', 'register_icalshow_style' );
+function register_icalshow_style() {
+	wp_register_style( 'icalshow', plugins_url( 'ical-show/css/icalshow.css' ) );
+	wp_enqueue_style( 'icalshow' );
+}
 
 ?>
