@@ -35,29 +35,60 @@ function icalshow_shortcodes_init()
         // normalize attribute keys, lowercase
         $atts = array_change_key_case((array)$atts, CASE_LOWER);
         // override default attributes with user attributes
-        $wporg_atts = shortcode_atts([
+        $ical_atts = shortcode_atts([
                                       'url' => 'invalid',
+                                      'dateformat' => 'd.m. H:i',
+                                      'dateseparator' => ' - ',
+                                      'collapsetime' => true,
+                                      'collapseformat' => 'H:i',
+                                      'collapseseparator' => '-',
+                                      'linksummary' => true,
+                                      'linktarget' => '_blank',
                                      ], $atts);
         //ignore any enclosed content, this is only non-enclosing
         $content = null;
 
         // validate attributes
-        if ($atts['url'] === 'invalid' || $atts['url'] === '')
+        if ($ical_atts['url'] === 'invalid' || $ical_atts['url'] === '')
           return '<div>No URL given in shortcode. Failing...</div>';
 
         // TODO: CACHING!!!
         // retrieve calendar data
-        $request = wp_remote_get($atts['url']);
+        $request = wp_remote_get($ical_atts['url']);
         if (is_wp_error($request))
-        	return '<div>Could not fetch feed from URL "'.$atts['url'].'". Failing: "'.$request.'"</div>';
+          return '<div>Could not fetch feed from URL "'.$ical_atts['url'].'". Failing: "'.$request.'"</div>';
         $data = wp_remote_retrieve_body($request);
 
         // parse read data
         $vcalendar = VObject\Reader::read($data);
 
+        // TODO: FILTER!!!
+
         // start output
-        $o = "<div class=\"icalshow\">";
-        $o .= "</div>";
+        $o =  "<div class=\"icalshow\"><div class=\"icalshow-body\">";
+        foreach ($vcalendar->VEVENT as $event) {
+          $o .= "<div class=\"icalshow-row\">";
+          // date and time
+          $start = $event->DTSTART->getDateTime();
+          $end = $event->DTEND->getDateTime();
+
+          // collapse the output if enabled and start and end on same day
+          if ($ical_atts['collapsetime'] == true && $start->format('Y-m-d') == $end->format('Y-m-d'))
+            $dt = $start->format($ical_atts['dateformat']).$ical_atts['collapseseparator'].$end->format($ical_atts['collapseformat']);
+          else
+            $dt = $start->format($ical_atts['dateformat']).$ical_atts['dateseparator'].$end->format($ical_atts['dateformat']);
+
+          $o .= "<div class=\"icalshow-cell icalshow-date\">".esc_html($dt)."</div>";
+
+          // details
+          $detail = $ical_atts['linksummary'] == true ? '<a class="icalshow-link" href="'.esc_url((string)$event->URL).'" target="'.esc_attr($ical_atts['linktarget']).'">' : '';
+          $detail .= esc_html((string)$event->SUMMARY);
+          $detail .= $ical_atts['linksummary'] == true ? '</a>' : '';
+          $o .= "<div class=\"icalshow-cell icalshow-detail\">".$detail."</div>";
+
+          $o .= "</div>";
+        }
+        $o .= "</div></div>";
 
         // return output
         return $o;
