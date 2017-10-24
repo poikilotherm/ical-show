@@ -25,10 +25,11 @@ You should have received a copy of the GNU General Public License
 along with iCal Show. If not, see https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html.
 */
 
+use Sabre\VObject;
+require_once( plugin_dir_path(__FILE__)."/vendor/autoload.php" );
+
 function icalshow_shortcodes_init()
 {
-    require_once( plugin_dir_path(__FILE__)."/vendor/autoload.php" );
-
     function icalshow_shortcode($atts = [], $content = null)
     {
         // normalize attribute keys, lowercase
@@ -48,11 +49,15 @@ function icalshow_shortcodes_init()
         // retrieve calendar data
         $request = wp_remote_get($atts['url']);
         if (is_wp_error($request))
-        	return '<div>Could not fetch feed from URL "'.$atts['url'].'". Failing...</div>';
+        	return '<div>Could not fetch feed from URL "'.$atts['url'].'". Failing: "'.$request.'"</div>';
         $data = wp_remote_retrieve_body($request);
 
+        // parse read data
+        $vcalendar = VObject\Reader::read($data);
+
         // start output
-        $o = "<div>".$data."</div>";
+        $o = "<div class=\"icalshow\">";
+        $o .= "</div>";
 
         // return output
         return $o;
