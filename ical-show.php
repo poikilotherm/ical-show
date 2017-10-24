@@ -35,13 +35,24 @@ function icalshow_shortcodes_init()
         $atts = array_change_key_case((array)$atts, CASE_LOWER);
         // override default attributes with user attributes
         $wporg_atts = shortcode_atts([
-                                      'url' => '',
+                                      'url' => 'invalid',
                                      ], $atts);
         //ignore any enclosed content, this is only non-enclosing
         $content = null;
 
+        // validate attributes
+        if ($atts['url'] === 'invalid' || $atts['url'] === '')
+          return '<div>No URL given in shortcode. Failing...</div>';
+
+        // TODO: CACHING!!!
+        // retrieve calendar data
+        $request = wp_remote_get($atts['url']);
+        if (is_wp_error($request))
+        	return '<div>Could not fetch feed from URL "'.$atts['url'].'". Failing...</div>';
+        $data = wp_remote_retrieve_body($request);
+
         // start output
-        $o = '<div>test</div>';
+        $o = "<div>".$data."</div>";
 
         // return output
         return $o;
