@@ -27,6 +27,8 @@ along with iCal Show. If not, see https://www.gnu.org/licenses/old-licenses/gpl-
 
 function icalshow_shortcodes_init()
 {
+    require_once( plugin_dir_path(__FILE__)."/vendor/autoload.php" );
+
     function icalshow_shortcode($atts = [], $content = null)
     {
         // do something to $content
