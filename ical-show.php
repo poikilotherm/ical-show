@@ -97,6 +97,8 @@ function icalshow_shortcodes_init()
             $events[] = $event;
         }
 
+        // TODO: SORTING!
+
         // start output
         $o =  "<div class=\"icalshow\"><div class=\"icalshow-table\">";
         foreach ($events as $event) {
