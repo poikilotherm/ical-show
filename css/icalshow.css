@@ -4,3 +4,7 @@ div.icalshow-cell {
   display: table-cell;
   padding: 0 2rem 0 0;
 }
+
+div.icalshow-error {
+  color: red;
+}
