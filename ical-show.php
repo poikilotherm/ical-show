@@ -64,7 +64,11 @@ function icalshow_shortcodes_init()
         $data = wp_remote_retrieve_body($request);
 
         // parse read data
-        $vcalendar = VObject\Reader::read($data);
+        try {
+          $vcalendar = VObject\Reader::read($data);
+        } catch (Exception $e) {
+          return "<div class=\"icalshow icalshow-error\">Could not parse iCal file. Please look inside your logs.</div>";
+        }
 
         // filter events...
         // save valid values to new array
