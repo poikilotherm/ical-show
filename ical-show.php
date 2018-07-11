@@ -70,10 +70,15 @@ function icalshow_shortcodes_init()
           return "<div class=\"icalshow icalshow-error\">Could not parse iCal file. Please look inside your logs.</div>";
         }
 
+        // TODO: validate the data with $vcalendar->validate()
+        // See also: http://sabre.io/vobject/icalendar/#validating-icalendar
+
+        // TODO: expand events to respect recurrences
+        // See also: http://sabre.io/vobject/recurrence/
+
         // filter events...
         // save valid values to new array
         $events = array();
-
         foreach($vcalendar->VEVENT as $event) {
           $start = $event->DTSTART->getDateTime();
           $end = $event->DTEND->getDateTime();
@@ -102,7 +107,13 @@ function icalshow_shortcodes_init()
             $events[] = $event;
         }
 
-        // TODO: SORTING!
+        // sort the events by start date
+        usort($events, function($a, $b) {
+          $adt = $a->DTSTART->getDateTime();
+          $bdt = $b->DTSTART->getDateTime();
+          if($adt == $bdt) return 0;
+          return ($adt < $bdt) ? -1 : 1;
+        });
 
         // no events to show = return message
         if (count($events) == 0)
