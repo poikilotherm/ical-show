@@ -83,7 +83,7 @@ function icalshow_shortcodes_init()
         $events = array();
         foreach($vcalendar->VEVENT as $event) {
           $start = $event->DTSTART->getDateTime();
-          $end = $event->DTEND->getDateTime();
+          $end = ($event->DTEND == null) ? $start : $event->DTEND->getDateTime();
           $now = new DateTime('NOW');
           $add = false;
 
@@ -151,7 +151,7 @@ function icalshow_shortcodes_init()
 
           // date and time
           $start = $event->DTSTART->getDateTime();
-          $end = $event->DTEND->getDateTime();
+          $end = ($event->DTEND == null) ? $start : $event->DTEND->getDateTime();
 
           // collapse the output if enabled and start and end on same day
           if ($ical_atts['collapsetime'] == true && $start->diff($end)->d == 0)
