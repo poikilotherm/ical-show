@@ -43,16 +43,13 @@ function icalshow_shortcodes_init()
                                       'dateformat' => 'd.m.',
                                       'datetimeseparator' => ' ',
                                       'timeformat' => 'H:i',
-                                      'dateseparator' => '-',
+                                      'dateseparator' => ' - ',
                                       'collapsetime' => true,
-                                      'collapseformat' => 'H:i',
                                       'collapseseparator' => '-',
                                       'linksummary' => true,
                                       'linktarget' => '_blank',
                                       'noresults' => '(Nothing to show.)'
                                      ], $atts);
-        // for simplicity of code, create a datetimeformat
-        $datetimeformat = $ical_atts['dateformat'].$ical_atts['datetimeseparator'].$ical_atts['timeformat'];
 
         //ignore any enclosed content, this is only non-enclosing
         $content = null;
@@ -122,33 +119,22 @@ function icalshow_shortcodes_init()
 
         // no events to show = return message
         if (count($events) == 0)
-          return "<div class=\"icalshow\">".$ical_atts['noresults']."</div>";
+          return "<div class=\"icalshow\">".esc_html($ical_atts['noresults'])."</div>";
+
+        // simple helper function for some usefull html tag insertion
+        function buildDateHtml($date, $time = false, $sep = ' ') {
+          $s = '<span class="icalshow-date">'.esc_html($date).'</span>';
+          if ($time != false) {
+            $s .= esc_html($sep);
+            $s .= '<span class="icalshow-time">'.esc_html($time).'</span>';
+          }
+          return $s;
+        }
 
         // start output
         $o =  "<div class=\"icalshow\"><div class=\"icalshow-table\">";
         foreach ($events as $event) {
           $o .= "<div class=\"icalshow-row\">";
-          // date and time
-          $start = $event->DTSTART->getDateTime();
-          $end = $event->DTEND->getDateTime();
-
-          // collapse the output if enabled and start and end on same day
-          if ($ical_atts['collapsetime'] == true && $start->format('Y-m-d') == $end->format('Y-m-d'))
-            $dt = $start->format($datetimeformat) . $ical_atts['collapseseparator'] . $end->format($ical_atts['collapseformat']);
-          // detect whole SINGLE days (start 00:00 to end 00:00) and collapse them
-          elseif ($ical_atts['collapsetime'] == true && $start->diff($end)->d == 1)
-            $dt = $start->format($ical_atts['dateformat']);
-          // detect whole MULTIPLE days (start 00:00 to end 00:00) and collapse them
-          elseif ($ical_atts['collapsetime'] == true && $start->diff($end)->d > 1 && $start->diff($end)->h == 0 && $start->diff($end)->m == 0) {
-            $dt = $start->format($ical_atts['dateformat']) .
-                    $ical_atts['dateseparator'] .
-                    // let the date go from end 00:00 to end -1 day 23:59
-                    $end->modify("-1 mins")->format($ical_atts['dateformat']);
-          }
-          else
-            $dt = $start->format($datetimeformat) . $ical_atts['dateseparator'] . $end->format($datetimeformat);
-
-          $o .= "<div class=\"icalshow-cell icalshow-date\">".esc_html($dt)."</div>";
 
           // details
           $url = 'href="'.esc_url(trim((string)$event->URL)).'"';
@@ -162,6 +148,44 @@ function icalshow_shortcodes_init()
           $detail .= esc_html((string)$event->SUMMARY);
           $detail .= $ical_atts['linksummary'] == true ? '</a>' : '';
           $o .= "<div class=\"icalshow-cell icalshow-detail\">".$detail."</div>";
+
+          // date and time
+          $start = $event->DTSTART->getDateTime();
+          $end = $event->DTEND->getDateTime();
+
+          // collapse the output if enabled and start and end on same day
+          if ($ical_atts['collapsetime'] == true && $start->diff($end)->d == 0)
+            $dt = buildDateHtml(
+                    $start->format($ical_atts['dateformat']),
+                    $start->format($ical_atts['timeformat']).
+                      $ical_atts['collapseseparator'].
+                      $end->format($ical_atts['timeformat']),
+                    $ical_atts['datetimeseparator']
+                  );
+
+          // detect whole SINGLE days (start 00:00 to end 00:00) and collapse them
+          elseif ($ical_atts['collapsetime'] == true && $start->diff($end)->d == 1)
+            $dt = buildDateHtml($start->format($ical_atts['dateformat']), $ical_atts['datetimeseparator']);
+
+          // detect whole MULTIPLE days (start 00:00 to end 00:00) and collapse them
+          elseif ($ical_atts['collapsetime'] == true &&
+                    $start->diff($end)->d > 1 &&
+                    $start->diff($end)->h == 0 &&
+                    $start->diff($end)->m == 0
+                  )
+            $dt = buildDateHtml(
+                    $start->format($ical_atts['dateformat']).
+                    $ical_atts['dateseparator'].
+                    // let the date go from end 00:00 to end -1 day 23:59
+                    $end->modify("-1 mins")->format($ical_atts['dateformat']),
+                    $ical_atts['datetimeseparator']
+                  );
+          else
+            $dt = buildDateHtml($start->format($ical_atts['dateformat']), $start->format($ical_atts['timeformat']), $ical_atts['datetimeseparator']).
+                  $ical_atts['dateseparator'].
+                  buildDateHtml($end->format($ical_atts['dateformat']), $end->format($ical_atts['timeformat']), $ical_atts['datetimeseparator']);
+
+          $o .= "<div class=\"icalshow-cell icalshow-datetime\">".$dt."</div>";
 
           $o .= "</div>";
         }
