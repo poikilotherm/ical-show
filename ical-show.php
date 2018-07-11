@@ -131,6 +131,8 @@ function icalshow_shortcodes_init()
           return $s;
         }
 
+        $tz = new DateTimeZone(get_option('timezone_string'));
+
         // start output
         $o =  "<div class=\"icalshow\"><div class=\"icalshow-table\">";
         foreach ($events as $event) {
@@ -150,8 +152,8 @@ function icalshow_shortcodes_init()
           $o .= "<div class=\"icalshow-cell icalshow-detail\">".$detail."</div>";
 
           // date and time
-          $start = $event->DTSTART->getDateTime();
-          $end = ($event->DTEND == null) ? $start : $event->DTEND->getDateTime();
+          $start = $event->DTSTART->getDateTime()->setTimezone($tz);
+          $end = ($event->DTEND == null) ? $start : $event->DTEND->getDateTime()->setTimezone($tz);
 
           // collapse the output if enabled and start and end on same day
           if ($ical_atts['collapsetime'] == true && $start->diff($end)->d == 0)
@@ -176,8 +178,8 @@ function icalshow_shortcodes_init()
             $dt = buildDateHtml(
                     $start->format($ical_atts['dateformat']).
                     $ical_atts['dateseparator'].
-                    // let the date go from end 00:00 to end -1 day 23:59
-                    $end->modify("-1 mins")->format($ical_atts['dateformat']),
+                    // let the date go from end 00:00 to end -1 day 00:00
+                    $end->modify("-1 day")->format($ical_atts['dateformat']),
                     $ical_atts['datetimeseparator']
                   );
           else
