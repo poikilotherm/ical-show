@@ -1,9 +1,25 @@
-div.icalshow-table { display: table; }
-div.icalshow-row { display: table-row; }
-div.icalshow-cell {
-  display: table-cell;
+div.icalshow-error { color: red; }
+
+div.icalshow-table {
+  display: table;
+  border-collapse: separate;
+}
+div.icalshow-row {
+  display: table-row;
+  width: 100%;
 }
 
-div.icalshow-error {
-  color: red;
+div.icalshow-cell {
+  display: table-cell;
+  text-align: left;
+  border-bottom: thin dotted gray;
+}
+
+div.icalshow-datetime {
+  padding-left: 1rem;
+}
+span.icalshow-date {}
+span.icalshow-time {
+  font-style: italic;
+  font-size: 80%;
 }
