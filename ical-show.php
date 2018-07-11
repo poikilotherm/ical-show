@@ -156,15 +156,20 @@ function icalshow_shortcodes_init()
           $end = ($event->DTEND == null) ? $start : $event->DTEND->getDateTime()->setTimezone($tz);
 
           // collapse the output if enabled and start and end on same day
-          if ($ical_atts['collapsetime'] == true && $start->diff($end)->d == 0)
+          if ($ical_atts['collapsetime'] == true && $start->diff($end)->d == 0) {
+            // when start == endtime only print the start time.
+            $time = "";
+            if ($start == $end)
+              $time = $start->format($ical_atts['timeformat']);
+            else
+              $time = $start->format($ical_atts['timeformat']) . $ical_atts['collapseseparator'] . $end->format($ical_atts['timeformat']);
+
             $dt = buildDateHtml(
                     $start->format($ical_atts['dateformat']),
-                    $start->format($ical_atts['timeformat']).
-                      $ical_atts['collapseseparator'].
-                      $end->format($ical_atts['timeformat']),
+                    $time,
                     $ical_atts['datetimeseparator']
                   );
-
+          }
           // detect whole SINGLE days (start 00:00 to end 00:00) and collapse them
           elseif ($ical_atts['collapsetime'] == true && $start->diff($end)->d == 1)
             $dt = buildDateHtml($start->format($ical_atts['dateformat']), $ical_atts['datetimeseparator']);
