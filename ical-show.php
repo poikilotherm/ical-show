@@ -1,13 +1,13 @@
 <?php
 /*
 Plugin Name:  iCal Show
-Plugin URI:   https://src.ipp.kfa-juelich.de/it/ical-show
+Plugin URI:   https://github.com/poikilotherm/ical-show
 Description:  Plugin to display events from an iCal feed via shortcodes
-Version:      20171024
+Version:      20180710
 Author:       Oliver Bertuch
 Author URI:   https://oliver.bertuch.eu
-License:      GPL2
-License URI:  https://www.gnu.org/licenses/gpl-2.0.html
+License:      AGPL3
+License URI:  https://www.gnu.org/licenses/agpl-3.0.html
 Text Domain:  icalshow
 Domain Path:  /languages
 
