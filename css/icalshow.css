@@ -1,3 +1,7 @@
+div.icalshow {
+  padding-bottom: 2rem;
+}
+
 div.icalshow-error { color: red; }
 
 div.icalshow-table {
