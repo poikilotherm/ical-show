@@ -65,7 +65,7 @@ function icalshow_shortcodes_init()
 
         // parse read data
         try {
-          $vcalendar = VObject\Reader::read($data);
+          $vcalendar = VObject\Reader::read($data, VObject\Reader::OPTION_FORGIVING);
         } catch (Exception $e) {
           return "<div class=\"icalshow icalshow-error\">Could not parse iCal file. Please look inside your logs.</div>";
         }
@@ -144,8 +144,8 @@ add_action('init', 'icalshow_shortcodes_init');
 // Register style sheet.
 add_action( 'wp_enqueue_scripts', 'register_icalshow_style' );
 function register_icalshow_style() {
-	wp_register_style( 'icalshow', plugins_url( 'ical-show/css/icalshow.css' ) );
-	wp_enqueue_style( 'icalshow' );
+  wp_register_style( 'icalshow', plugins_url( 'ical-show/css/icalshow.css' ) );
+  wp_enqueue_style( 'icalshow' );
 }
 
 ?>
