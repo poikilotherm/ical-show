@@ -171,7 +171,10 @@ function icalshow_shortcodes_init()
                   );
           }
           // detect whole SINGLE days (start 00:00 to end 00:00) and collapse them
-          elseif ($ical_atts['collapsetime'] == true && $start->diff($end)->d == 1)
+          elseif ($ical_atts['collapsetime'] == true &&
+                    $start->diff($end)->d == 1 &&
+                    $start->diff($end)->h == 0 &&
+                    $start->diff($end)->m < 5)
             $dt = buildDateHtml($start->format($ical_atts['dateformat']), $ical_atts['datetimeseparator']);
 
           // detect whole MULTIPLE days (start 00:00 to end 00:00) and collapse them
