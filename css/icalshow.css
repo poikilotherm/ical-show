@@ -27,3 +27,7 @@ span.icalshow-time {
   font-style: italic;
   font-size: 80%;
 }
+
+div.icalshow-detail {
+  width: 60%;
+}
